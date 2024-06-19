@@ -20,13 +20,15 @@ async def compress_image(
         buffer_data = BytesIO(await file.read())
 
         if algorithm == Algorithm.jpeg:
-            media_type = "JPEG"
-            output, compress_time = image.compress_image(buffer_data, media_type)
+            output, compress_time = image.compress_image(
+                buffer_data, algorithm.value.upper()
+            )
         elif algorithm == Algorithm.webp:
-            media_type = "WEBP"
-            output, compress_time = image.compress_image(buffer_data, media_type)
+            output, compress_time = image.compress_image(
+                buffer_data, algorithm.value.upper()
+            )
 
-        file_name = f"{file.filename.split(".")[0]}.{media_type.lower()}"
+        file_name = f"{file.filename.split(".")[0]}.{algorithm.value.lower()}"
         original_size = f"{file.size / 1024 / 1024:.2f}"
         compressed_size = f"{output.getbuffer().nbytes / 1024 / 1024:.2f}"
         url = azure_storage.upload_blob("image", file_name, output)
@@ -34,7 +36,7 @@ async def compress_image(
         return {
             "data": {
                 "type": "Image",
-                "algorithm": algorithm,
+                "algorithm": algorithm.value.upper(),
                 "url": url,
                 "size": {
                     "original": original_size,

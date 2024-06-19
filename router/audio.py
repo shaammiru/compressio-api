@@ -27,19 +27,17 @@ async def compress_image(
             f.write(await file.read())
 
         if algorithm == Algorithm.mp3:
-            media_type = "mp3"
             output_path = os.path.join("tmp", f"{uuid.uuid4()}.mp3")
             output, compress_time = audio.compress_audio(
-                input_path, output_path, media_type
+                input_path, output_path, algorithm.value
             )
         elif algorithm == Algorithm.aac:
-            media_type = "aac"
             output_path = os.path.join("tmp", f"{uuid.uuid4()}.aac")
             output, compress_time = audio.compress_audio(
-                input_path, output_path, media_type
+                input_path, output_path, algorithm.value
             )
 
-        file_name = f"{file.filename.split(".")[0]}.{media_type.lower()}"
+        file_name = f"{file.filename.split(".")[0]}.{algorithm.value.lower()}"
         original_size = f"{file.size / 1024 / 1024:.2f}"
         compressed_size = f"{os.path.getsize(output_path) / 1024 / 1024:.2f}"
 
@@ -54,7 +52,7 @@ async def compress_image(
         return {
             "data": {
                 "type": "Audio",
-                "algorithm": algorithm,
+                "algorithm": algorithm.value.upper(),
                 "url": url,
                 "size": {
                     "original": original_size,
