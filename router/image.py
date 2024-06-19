@@ -12,7 +12,12 @@ class Algorithm(str, Enum):
 router = APIRouter()
 
 
-@router.post("/compress", response_model=model.CompressResponseModel)
+@router.post(
+    "/compress",
+    response_model=model.CompressResponseModel,
+    name="Compress Image",
+    description="Compress Image",
+)
 async def compress_image(
     algorithm: Algorithm = Query(...), file: UploadFile = File(...)
 ):
