@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from router import image, audio, video
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
