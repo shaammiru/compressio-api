@@ -14,4 +14,4 @@ def compress_image(image_buffer: BytesIO, algorithm: str):
     process_time = end_time - start_time
     output_buffer.seek(0)
 
-    return output_buffer, process_time
+    return output_buffer, process_time.__format__(".3f")
