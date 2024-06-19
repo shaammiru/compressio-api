@@ -18,10 +18,6 @@ def compress_audio(input_path: str, output_path: str, codec: str, bitrate="96k")
         end_time = time.time()
         process_time = end_time - start_time
 
-        return output_path, process_time
+        return output_path, process_time.__format__(".3f")
     except ffmpeg.Error as e:
         raise e
-
-
-output_path, process_time = compress_audio("test.mp3", "output.aac", "aac")
-print(output_path, process_time)
