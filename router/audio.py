@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Query, File, UploadFile, HTTPException
+import os
+import uuid
 from enum import Enum
+from fastapi import APIRouter, Query, File, UploadFile, HTTPException
 from service import audio, azure_storage
 
 
@@ -11,26 +13,62 @@ class Algorithm(str, Enum):
 router = APIRouter()
 
 
-@router.get("/compress")
+@router.post("/compress")
 async def compress_image(
     algorithm: Algorithm = Query(...), file: UploadFile = File(...)
 ):
-    try:
-        if algorithm == Algorithm.mp3:
-            output, time = audio.compress_audio("test.mp3", "output.mp3", "mp3")
-        elif algorithm == Algorithm.aac:
-            output, time = audio.compress_audio("test.mp3", "output.aac", "aac")
+    input_path = os.path.join("tmp", f"{uuid.uuid4()}-{file.filename}")
+    output_path = str("")
 
-        url = azure_storage.upload_blob("audio", file.filename, output)
+    try:
+        os.makedirs("tmp", exist_ok=True)
+
+        with open(input_path, "wb") as f:
+            f.write(await file.read())
+
+        if algorithm == Algorithm.mp3:
+            media_type = "mp3"
+            output_path = os.path.join("tmp", f"{uuid.uuid4()}.mp3")
+            output, compress_time = audio.compress_audio(
+                input_path, output_path, media_type
+            )
+        elif algorithm == Algorithm.aac:
+            media_type = "aac"
+            output_path = os.path.join("tmp", f"{uuid.uuid4()}.aac")
+            output, compress_time = audio.compress_audio(
+                input_path, output_path, media_type
+            )
+
+        file_name = f"{file.filename.split(".")[0]}.{media_type.lower()}"
+        original_size = f"{file.size / 1024 / 1024:.2f}"
+        compressed_size = f"{os.path.getsize(output_path) / 1024 / 1024:.2f}"
+
+        with open(output_path, "rb") as f:
+            output = f.read()
+
+        url = azure_storage.upload_blob("audio", file_name, output)
+
+        os.remove(input_path)
+        os.remove(output_path)
 
         return {
             "data": {
                 "type": "Audio",
                 "algorithm": algorithm,
                 "url": url,
-                "time": time,
+                "size": {
+                    "original": original_size,
+                    "compressed": compressed_size,
+                },
+                "time": compress_time,
             }
         }
     except Exception as e:
+        if os.path.exists(input_path):
+            os.remove(input_path)
+
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
