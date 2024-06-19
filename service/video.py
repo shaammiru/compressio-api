@@ -25,10 +25,6 @@ def compress_video(
         end_time = time.time()
         process_time = end_time - start_time
 
-        return output_path, process_time
+        return output_path, process_time.__format__(".3f")
     except ffmpeg.Error as e:
         raise e
-
-
-output_path, process_time = compress_video("test.mp4", "output.mp4", "libx264")
-print(output_path, process_time)
