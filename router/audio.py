@@ -2,7 +2,7 @@ import os
 import uuid
 from enum import Enum
 from fastapi import APIRouter, Query, File, UploadFile, HTTPException
-from service import audio, azure_storage
+from service import audio, azure_storage, model
 
 
 class Algorithm(str, Enum):
@@ -13,7 +13,7 @@ class Algorithm(str, Enum):
 router = APIRouter()
 
 
-@router.post("/compress")
+@router.post("/compress", response_model=model.CompressResponseModel)
 async def compress_image(
     algorithm: Algorithm = Query(...), file: UploadFile = File(...)
 ):

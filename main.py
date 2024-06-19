@@ -15,11 +15,6 @@ app.include_router(audio.router, prefix="/audio", tags=["audio"])
 app.include_router(video.router, prefix="/video", tags=["video"])
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int):
-    return {"item_id": item_id}
-
-
 @app.get("/favicon.ico")
 async def favicon():
     return RedirectResponse("/static/favicon.png")
