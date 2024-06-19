@@ -35,7 +35,7 @@ async def compress_image(
                 input_path, output_path, "libx265"
             )
 
-        file_name = f"{file.filename.split(".")[0]}.mp4"
+        file_name = f"{file.filename.split('.')[0]}.mp4"
         original_size = f"{file.size / 1024 / 1024:.2f}"
         compressed_size = f"{os.path.getsize(output_path) / 1024 / 1024:.2f}"
 
